@@ -408,7 +408,7 @@ function sendOrder(event) {
     window.open(whatsappUrl, '_blank');
 
     Toastify({
-        text: 'تم إرسال الطلب بنجاح!',
+        text: 'جارى فتح واتساب لإرسال الطلب!',
         className: 'toast-success',
         duration: 3000,
         gravity: 'top',
@@ -470,7 +470,7 @@ async function sendElectronicOrder(event) {
         window.open(whatsappUrl, '_blank');
 
         Toastify({
-            text: 'تم إرسال الطلب بنجاح!',
+            text: 'جارى فتح واتساب لإرسال الطلب!',
             className: 'toast-success',
             duration: 3000,
             gravity: 'top',
