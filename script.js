@@ -466,7 +466,7 @@ async function sendElectronicOrder(event) {
         const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
         const message = `طلب جديد\nالاسم: ${name}\nالهاتف: ${phone}\nالعنوان: ${address}\n${location ? `الموقع: ${location}\n` : ''}تفاصيل الطلب:\n${orderDetails}\nالإجمالي: ${total} جنيه\nطريقة الدفع: إلكتروني\nإثبات الدفع: ${imageUrl}`;
 
-        const whatsappUrl = `https://wa.me/+201234567890?text=${encodeURIComponent(message)}`;
+        const whatsappUrl = `https://wa.me/+201129864940?text=${encodeURIComponent(message)}`;
         window.open(whatsappUrl, '_blank');
 
         Toastify({
