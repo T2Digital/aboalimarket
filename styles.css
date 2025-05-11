@@ -595,6 +595,11 @@ body {
     -webkit-tap-highlight-color: transparent;
 }
 
+.map iframe {
+    /* إذا كان أوفلاين، إظهار رسالة بديلة */
+    pointer-events: auto;
+}
+
 /* إشعارات Toastify */
 .toast-success {
     border-radius: 10px;
