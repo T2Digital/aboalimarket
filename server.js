@@ -41,15 +41,39 @@ app.use((req, res, next) => {
     next();
 });
 
+// الاتصال بقاعدة البيانات أولاً
+mongoose.connect(process.env.MONGODB_URI)
+    .then(() => console.log('تم الاتصال بقاعدة البيانات'))
+    .catch(err => console.error('خطأ الاتصال بقاعدة البيانات:', err.message));
+
 // إعدادات الجلسة
+console.log('SESSION_SECRET:', process.env.SESSION_SECRET);
+const store = MongoStore.create({ 
+    mongoUrl: process.env.MONGODB_URI,
+    collectionName: 'sessions',
+    ttl: 24 * 60 * 60, // 24 ساعة
+    touchAfter: 24 * 3600 // تقليل الكتابة غير الضرورية
+});
+store.on('error', (err) => console.error('MongoStore Error:', err));
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
-    cookie: { secure: process.env.NODE_ENV === 'production', maxAge: 24 * 60 * 60 * 1000 }
+    store: store,
+    cookie: { 
+        httpOnly: true,
+        secure: false, // غيرناها لـ false للتجربة على localhost
+        sameSite: 'lax',
+        maxAge: 24 * 60 * 60 * 1000 // 24 ساعة
+    }
 }));
 console.log('Session Middleware Configured');
+
+// لوج لفحص بيانات الجلسة
+app.use((req, res, next) => {
+    console.log(`Session ID: ${req.sessionID}, Session Data:`, req.session);
+    next();
+});
 
 // إعداد Passport
 app.use(passport.initialize());
@@ -57,8 +81,27 @@ app.use(passport.session());
 
 const User = require('./models/User');
 passport.use(new LocalStrategy(User.authenticate()));
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+passport.serializeUser((user, done) => {
+    console.log('Serializing user:', user.id);
+    done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+    try {
+        console.log('Deserializing user with ID:', id);
+        const user = await User.findById(id);
+        if (user) {
+            console.log('User found:', user.username);
+            done(null, user);
+        } else {
+            console.log('User not found');
+            done(null, false);
+        }
+    } catch (err) {
+        console.error('Error in deserializeUser:', err);
+        done(err);
+    }
+});
 console.log('Passport Configured');
 
 // تسجيل حالة الجلسة
@@ -66,11 +109,6 @@ app.use((req, res, next) => {
     console.log(`Session ID: ${req.sessionID}, Authenticated: ${req.isAuthenticated()}, User: ${req.user ? req.user.username : 'None'}`);
     next();
 });
-
-// الاتصال بقاعدة البيانات
-mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('تم الاتصال بقاعدة البيانات'))
-    .catch(err => console.error('خطأ الاتصال بقاعدة البيانات:', err.message));
 
 // تعريف المسارات
 const authRoutes = require('./routes/auth');
@@ -85,6 +123,17 @@ app.use('/admin', (req, res, next) => {
 app.use('/api', (req, res, next) => {
     console.log(`Routing to api: ${req.method} ${req.originalUrl}`);
     apiRoutes(req, res, next);
+});
+
+// مسار اختبار للسيشن
+app.get('/test-session', (req, res) => {
+    console.log('GET /test-session: Checking session');
+    res.json({
+        sessionID: req.sessionID,
+        isAuthenticated: req.isAuthenticated(),
+        user: req.user ? req.user.username : 'None',
+        session: req.session
+    });
 });
 
 // مسار اختباري
