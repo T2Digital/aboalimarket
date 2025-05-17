@@ -14,6 +14,50 @@ function isCacheValid(timestamp, maxAge = 5 * 60 * 1000) {
     return Date.now() - timestamp < maxAge;
 }
 
+// إدارة الكاش القديم
+function clearOldCache() {
+    const keys = ['categoriesCache', 'productsCache'];
+    keys.forEach(key => {
+        const cache = JSON.parse(localStorage.getItem(key));
+        if (cache && !isCacheValid(cache.timestamp)) {
+            localStorage.removeItem(key);
+            console.log(`تم إزالة الكاش: ${key}`);
+        }
+    });
+}
+
+// زر التثبيت لـ PWA
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const installButton = document.getElementById('installButton');
+    if (installButton) {
+        installButton.style.display = 'block';
+        installButton.addEventListener('click', () => {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('المستخدم وافق على التثبيت');
+                } else {
+                    console.log('المستخدم رفض التثبيت');
+                }
+                deferredPrompt = null;
+                installButton.style.display = 'none';
+            });
+        });
+    }
+});
+
+window.addEventListener('appinstalled', () => {
+    console.log('التطبيق تم تثبيته على الجهاز');
+    Toastify({
+        text: 'تم تثبيت التطبيق بنجاح!',
+        duration: 3000,
+        className: 'toast-success'
+    }).showToast();
+});
+
 async function displayCategories() {
     console.log('جلب الأقسام');
     try {
@@ -56,8 +100,8 @@ async function displayCategories() {
                     <img src="${category.image}" alt="${category.name}" class="img-fluid" onclick="displayProductsByCategory('${category._id}'); document.getElementById('product-list').scrollIntoView({ behavior: 'smooth' });">
                     <h3 onclick="displayProductsByCategory('${category._id}'); document.getElementById('product-list').scrollIntoView({ behavior: 'smooth' });">${category.name}</h3>
                 </div>
-            </div>
-        `).join('');
+                </div>
+            `).join('');
     } catch (error) {
         console.error('خطأ جلب الأقسام:', error.message);
         Toastify({
@@ -133,6 +177,11 @@ async function displayProducts(searchQuery = '') {
                 </div>
             </div>
         `).join('') : '<p class="empty-message w-100 text-center">لا توجد منتجات متاحة</p>';
+
+        // التوجيه لقسم المنتجات بعد البحث
+        if (searchQuery) {
+            document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
+        }
     } catch (error) {
         console.error('خطأ جلب المنتجات:', error.message);
         Toastify({
@@ -519,7 +568,11 @@ function setupSearch() {
     }, 500);
     searchInput.addEventListener('input', () => {
         const query = searchInput.value.trim();
-        debouncedSearch(query);
+        if (query.length >= 2) {
+            debouncedSearch(query);
+        } else {
+            displayProducts('');
+        }
     });
 }
 
@@ -531,6 +584,7 @@ function closeNavbar() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    clearOldCache();
     displayCategories();
     displayProducts();
     updateCartDisplay();

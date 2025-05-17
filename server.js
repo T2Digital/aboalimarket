@@ -8,6 +8,7 @@ const path = require('path');
 const dotenv = require('dotenv');
 const fs = require('fs');
 const multer = require('multer');
+const compression = require('compression'); // إضافة Gzip
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ if (!fs.existsSync(viewsPath)) {
 }
 
 // Middleware
+app.use(compression()); // إضافة Gzip لضغط الردود
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -51,19 +53,18 @@ console.log('SESSION_SECRET:', process.env.SESSION_SECRET);
 const store = MongoStore.create({ 
     mongoUrl: process.env.MONGODB_URI,
     collectionName: 'sessions',
-    ttl: 24 * 60 * 60, // 24 ساعة
-    touchAfter: 24 * 3600 // تقليل الكتابة غير الضرورية
+    ttl: 24 * 60 * 60 // 24 ساعة
 });
 store.on('error', (err) => console.error('MongoStore Error:', err));
 app.use(session({
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || 'your-secret-key', // احتياطي لو المتغير مش موجود
     resave: false,
     saveUninitialized: false,
     store: store,
     cookie: { 
-        httpOnly: true,
-        secure: false, // غيرناها لـ false للتجربة على localhost
-        sameSite: 'lax',
+        httpOnly: true, // منع الوصول من JavaScript
+        secure: process.env.NODE_ENV === 'production' ? true : false, // Secure في الإنتاج (HTTPS)
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // None في الإنتاج لدعم Cross-Site
         maxAge: 24 * 60 * 60 * 1000 // 24 ساعة
     }
 }));

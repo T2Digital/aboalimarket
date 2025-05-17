@@ -10,20 +10,22 @@
     <!-- Open Graph لمواقع التواصل -->
     <meta property="og:title" content="ماركت وألبان أبو علي - تسوق الآن!">
     <meta property="og:description" content="تسوق أفضل المنتجات الطازجة والألبان بأسعار تنافسية مع ماركت وألبان أبو علي.">
-    <meta property="og:image" content="/images/logo.png">
-    <meta property="og:url" content="https://www.abu-ali-market.com">
+    <meta property="og:image" content="https://aboalimarket.onrender.com/images/logo.png">
+    <meta property="og:url" content="https://aboalimarket.onrender.com">
     <meta property="og:type" content="website">
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="ماركت وألبان أبو علي - تسوق الآن!">
     <meta name="twitter:description" content="تسوق أفضل المنتجات الطازجة والألبان بأسعار تنافسية.">
-    <meta name="twitter:image" content="/images/logo.png">
+    <meta name="twitter:image" content="https://aboalimarket.onrender.com/images/logo.png">
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json">
     <!-- Apple Touch Icon -->
-    <link rel="apple-touch-icon" href="/icon/icon-192x192.png">
+    <link rel="apple-touch-icon" href="/images/logo.png">
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <!-- Sitemap -->
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml">
     <meta name="theme-color" content="#172554">
     <title>ماركت وألبان أبو علي</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
@@ -31,13 +33,217 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="/register-sw.js"></script>
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
         "@type": "GroceryStore",
         "name": "ماركت وألبان أبو علي",
         "description": "متجر لبيع المنتجات الطازجة والألبان بأسعار تنافسية في مصر.",
-        "url": "https://www.abu-ali-market.com",
+        "url": "https://aboalimarket.onrender.com",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "شارع الماركت الرئيسي",
+            "addressLocality": "القاهرة",
+            "addressCountry": "EG"
+        },
+        "telephone": "+201234567890",
+        "openingHours": "Mo-Su 08:00-22:00",
+        "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": "30.067502",
+            "longitude": "31.170358"
+        }
+    }
+    </script>
+</head>
+<body>
+    <header class="header">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container">
+                <a class="navbar-brand" href="/">
+                    <img src="/images/logo.png" alt="شعار الماركت" class="logo">
+                    ماركت وألبان أبو علي
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item"><a class="nav-link" href="#categories" onclick="closeNavbar()">الأقسام</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#about" onclick="closeNavbar()">من نحن</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#reviews" onclick="closeNavbar()">آراء العملاء</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#cart" onclick="closeNavbar()">السلة</a></li>
+                    </ul>
+                    <div class="cart-icon ms-3">
+                        <i class="fas fa-shopping-cart fs-4"></i>
+                        <span id="cart-count" class="badge bg-danger rounded-circle">0</span>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <div class="container my-3">
+            <div class="input-group">
+                <input type="text" id="search-input" class="form-control" placeholder="ابحث عن منتج..." aria-label="ابحث عن منتج">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-box">
+                <h2>طازه من إنتاج مزارعنا</h2>
+                <a href="#categories" class="btn btn-primary hero-btn">اطلب الآن</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="categories" class="categories py-5">
+        <h2 class="text-center mb-4"><span class="highlight-box">الأقسام</span></h2>
+        <div class="container">
+            <div class="row row-cols-2 row-cols-md-4 g-3 category-grid"></div>
+        </div>
+    </section>
+
+    <section id="products" class="products py-5">
+        <h2 class="text-center mb-4"><span class="highlight-box">المنتجات</span></h2>
+        <div class="container">
+            <div id="product-list" class="row row-cols-2 row-cols-md-4 g-3">
+                <p class="empty-message w-100 text-center">اختر القسم لتظهر المنتجات</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="cart" class="cart py-5">
+        <h2 class="text-center mb-4"><span class="highlight-box">سلة التسوق</span></h2>
+        <div class="container">
+            <div id="cart-items" class="mb-4"></div>
+            <p class="fw-bold text-center"><span class="highlight-box">الإجمالي: <span id="cart-total">0</span> جنيه</span></p>
+            <div class="text-center">
+                <button class="btn btn-primary" onclick="showCheckout()">إتمام الطلب</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="about py-5">
+        <div class="container">
+            <h2 class="text-center mb-4"><span class="highlight-box">من نحن</span></h2>
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center">
+                    <p>ماركت وألبان أبو علي هو وجهتك المفضلة للحصول على أفضل المنتجات الطازجة والمتنوعة. نسعى لتوفير تجربة تسوق سهلة وممتعة مع ضمان الجودة والسعر المناسب. انضم إلينا واكتشف تشكيلتنا المميزة!</p>
+                </div>
+                <div class="col-md-6">
+                    <img src="/images/logo.png" alt="من نحن" class="img-fluid rounded">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="map" class="map py-5">
+        <h2 class="text-center mb-4"><span class="highlight-box">موقعنا</span></h2>
+        <div class="container">
+            <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3453.123456789!2d31.168358315!3d30.06750281!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzDCsDA0JzAzLjAiTiAzMcKwMTAnMTMuMyJF!5e0!3m2!1sar!2seg!4v1634567891234"
+                width="100%"
+                height="400"
+                style="border:0; border-radius: 15px;"
+                allowfullscreen=""
+                loading="lazy">
+            </iframe>
+        </div>
+    </section>
+
+    <section id="reviews" class="reviews py-5">
+        <h2 class="text-center mb-4"><span class="highlight-box">آراء العملاء</span></h2>
+        <div class="container">
+            <div id="reviewsCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <div class="review-card">
+                            <h5>أحمد محمد</h5>
+                            <p>منتجات طازجة وخدمة ممتازة! التوصيل سريع وكل شيء منظم.</p>
+                            <div class="stars">★★★★★</div>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <div class="review-card">
+                            <h5>فاطمة علي</h5>
+                            <p>أفضل ماركت للألبان والمخبوزات، الأسعار مناسبة جدًا.</p>
+                            <div class="stars">★★★★☆</div>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <div class="review-card">
+                            <h5>محمود حسن</h5>
+                            <p>تجربة تسوق رائعة، المنتجات دائمًا طازجة!</p>
+                            <div class="stars">★★★★★</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#reviewsCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">السابق</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#reviewsCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                   Polegaj na mnie! 😄 Jestem gotowy, żebyśmy razem doprowadzili aplikację **Abu Ali Market** do perfekcji. Oto pełne kody dla `index.html` i `script.js`, zawierające wszystkie poprawki i ulepszenia, gwarantujące, że nie zaszkodzimy żadnej części aplikacji. Do tego szczegółowe kroki, jak zintegrować zmiany na GitHubie i Renderze.
+
+---
+
+### 1. Pełny kod dla `index.html`
+Kod został zmodyfikowany, aby zawierał:
+- Usunięcie powtórnego rejestrowania Service Workera.
+- Poprawkę Open Graph i Twitter Card na `https://aboalimarket.onrender.com`.
+- Poprawkę Apple Touch Icon na `/images/logo.png`.
+- Dodanie przycisku instalacji (`installButton`).
+- Dodanie Sitemap dla lepszego SEO.
+
+#### **Zawartość `index.html` po modyfikacji**:
+```html
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ماركت وألبان أبو علي - تسوق أفضل المنتجات الطازجة والألبان بأسعار تنافسية في مصر">
+    <meta name="keywords" content="ماركت, ألبان, منتجات طازجة, تسوق اونلاين, مصر, أبو علي">
+    <meta name="author" content="ماركت وألبان أبو علي">
+    <meta name="robots" content="index, follow">
+    <!-- Open Graph لمواقع التواصل -->
+    <meta property="og:title" content="ماركت وألبان أبو علي - تسوق الآن!">
+    <meta property="og:description" content="تسوق أفضل المنتجات الطازجة والألبان بأسعار تنافسية مع ماركت وألبان أبو علي.">
+    <meta property="og:image" content="https://aboalimarket.onrender.com/images/logo.png">
+    <meta property="og:url" content="https://aboalimarket.onrender.com">
+    <meta property="og:type" content="website">
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="ماركت وألبان أبو علي - تسوق الآن!">
+    <meta name="twitter:description" content="تسوق أفضل المنتجات الطازجة والألبان بأسعار تنافسية.">
+    <meta name="twitter:image" content="https://aboalimarket.onrender.com/images/logo.png">
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="/images/logo.png">
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <!-- Sitemap -->
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml">
+    <meta name="theme-color" content="#172554">
+    <title>ماركت وألبان أبو علي</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="/register-sw.js"></script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "GroceryStore",
+        "name": "ماركت وألبان أبو علي",
+        "description": "متجر لبيع المنتجات الطازجة والألبان بأسعار تنافسية في مصر.",
+        "url": "https://aboalimarket.onrender.com",
         "address": {
             "@type": "PostalAddress",
             "streetAddress": "شارع الماركت الرئيسي",
@@ -222,6 +428,8 @@
         <i class="fas fa-list me-2"></i> عرض الأقسام
     </button>
 
+    <button id="installButton" class="btn btn-primary" style="display: none; position: fixed; bottom: 20px; left: 20px;">تثبيت التطبيق</button>
+
     <div id="checkout" class="modal fade" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
@@ -308,18 +516,5 @@
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/compressorjs/1.2.1/compressor.min.js"></script>
     <script src="/script.js"></script>
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('Service Worker registered with scope:', registration.scope);
-                    })
-                    .catch(error => {
-                        console.error('Service Worker registration failed:', error);
-                    });
-            });
-        }
-    </script>
 </body>
 </html>
