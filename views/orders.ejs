@@ -1,0 +1,84 @@
+<%- include('layout') %>
+<div class="container mt-4">
+    <h2 class="text-center my-4">متابعة الطلبات</h2>
+    <div class="d-flex justify-content-center mb-3">
+        <div class="filter-container">
+            <label for="period-filter" class="form-label me-2">تصفية حسب:</label>
+            <select id="period-filter" class="form-select me-2" onchange="filterOrders()">
+                <option value="all" <%= typeof period !== 'undefined' && period === 'all' ? 'selected' : '' %>>الكل</option>
+                <option value="today" <%= typeof period !== 'undefined' && period === 'today' ? 'selected' : '' %>>اليوم</option>
+                <option value="week" <%= typeof period !== 'undefined' && period === 'week' ? 'selected' : '' %>>الأسبوع</option>
+                <option value="month" <%= typeof period !== 'undefined' && period === 'month' ? 'selected' : '' %>>الشهر</option>
+                <option value="year" <%= typeof period !== 'undefined' && period === 'year' ? 'selected' : '' %>>السنة</option>
+            </select>
+        </div>
+    </div>
+    <p class="text-center">إجمالي المبيعات: <strong><%= totalSales %> جنيه</strong></p>
+    <div class="table-responsive">
+        <table class="table table-bordered neon-table">
+            <thead>
+                <tr>
+                    <th>رقم الطلب</th>
+                    <th>اسم العميل</th>
+                    <th>رقم الهاتف</th>
+                    <th>العنوان</th>
+                    <th>المنتجات</th>
+                    <th>الإجمالي</th>
+                    <th>طريقة الدفع</th>
+                    <th>إثبات الدفع</th>
+                    <th>الحالة</th>
+                    <th>إجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% orders.forEach(order => { %>
+                    <tr>
+                        <td><%= order._id %></td>
+                        <td><%= order.customerName %></td>
+                        <td><%= order.customerPhone %></td>
+                        <td><%= order.customerAddress %></td>
+                        <td>
+                            <ul>
+                                <% order.products.forEach(item => { %>
+                                    <li><%= item.product.name %> - <%= item.quantity %> × <%= item.price %> = <%= item.quantity * item.price %> جنيه</li>
+                                <% }) %>
+                            </ul>
+                        </td>
+                        <td><%= order.total %> جنيه</td>
+                        <td><%= order.paymentMethod === 'cash' ? 'الدفع عند الاستلام' : 'الدفع الإلكتروني' %></td>
+                        <td>
+                            <% if (order.paymentProof) { %>
+                                <a href="<%= order.paymentProof %>" target="_blank">عرض الصورة</a>
+                            <% } else { %>
+                                لا يوجد
+                            <% } %>
+                        </td>
+                        <td><%= order.status %></td>
+                        <td>
+                            <form action="/admin/orders/update-status" method="POST">
+                                <input type="hidden" name="orderId" value="<%= order._id %>">
+                                <select name="status" onchange="this.form.submit()" class="form-select neon-select">
+                                    <option value="pending" <%= order.status === 'pending' ? 'selected' : '' %>>قيد الانتظار</option>
+                                    <option value="processing" <%= order.status === 'processing' ? 'selected' : '' %>>قيد المعالجة</option>
+                                    <option value="completed" <%= order.status === 'completed' ? 'selected' : '' %>>مكتمل</option>
+                                    <option value="cancelled" <%= order.status === 'cancelled' ? 'selected' : '' %>>ملغى</option>
+                                </select>
+                            </form>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    function filterOrders() {
+        const period = document.getElementById('period-filter').value;
+        console.log('Filtering orders with period:', period);
+        if (period) {
+            window.location.href = `/admin/orders?period=${encodeURIComponent(period)}`;
+        } else {
+            window.location.href = '/admin/orders';
+        }
+    }
+</script>

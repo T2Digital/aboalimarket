@@ -1,0 +1,178 @@
+<%- include('layout') %>
+<div class="container">
+    <h2 class="text-center my-4">تحديث المتجر</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <h3>إدارة الأقسام</h3>
+            <form id="categoryForm" class="mb-4">
+                <div class="mb-3">
+                    <label for="categoryName" class="form-label">اسم القسم</label>
+                    <input type="text" class="form-control" id="categoryName" required>
+                </div>
+                <div class="mb-3">
+                    <label for="categoryImage" class="form-label">رابط الصورة</label>
+                    <input type="text" class="form-control" id="categoryImage" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-neon">إضافة قسم</button>
+            </form>
+            <h4>الأقسام الحالية</h4>
+            <ul id="categoryList" class="list-group"></ul>
+        </div>
+        <div class="col-md-6">
+            <h3>إدارة المنتجات</h3>
+            <form id="productForm" class="mb-4">
+                <div class="mb-3">
+                    <label for="productName" class="form-label">اسم المنتج</label>
+                    <input type="text" class="form-control" id="productName" required>
+                </div>
+                <div class="mb-3">
+                    <label for="productPrice" class="form-label">السعر</label>
+                    <input type="number" class="form-control" id="productPrice" required>
+                </div>
+                <div class="mb-3">
+                    <label for="productImage" class="form-label">رابط الصورة</label>
+                    <input type="text" class="form-control" id="productImage" required>
+                </div>
+                <div class="mb-3">
+                    <label for="productCategory" class="form-label">القسم</label>
+                    <select class="form-select" id="productCategory" required></select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-neon">إضافة منتج</button>
+            </form>
+            <h4>المنتجات الحالية</h4>
+            <ul id="productList" class="list-group"></ul>
+        </div>
+    </div>
+</div>
+<script>
+    // جلب الأقسام
+    async function loadCategories() {
+        const response = await fetch('/api/categories');
+        const categories = await response.json();
+        const categoryList = document.getElementById('categoryList');
+        const productCategory = document.getElementById('productCategory');
+        categoryList.innerHTML = '';
+        productCategory.innerHTML = '<option value="">اختر قسمًا</option>';
+        categories.forEach(category => {
+            categoryList.innerHTML += `
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    ${category.name}
+                    <div>
+                        <button class="btn btn-sm btn-warning btn-neon me-2" onclick="editCategory('${category._id}', '${category.name}', '${category.image}')">تعديل</button>
+                        <button class="btn btn-sm btn-danger btn-neon" onclick="deleteCategory('${category._id}')">حذف</button>
+                    </div>
+                </li>`;
+            productCategory.innerHTML += `<option value="${category._id}">${category.name}</option>`;
+        });
+    }
+
+    // جلب المنتجات
+    async function loadProducts() {
+        const response = await fetch('/api/products');
+        const products = await response.json();
+        const productList = document.getElementById('productList');
+        productList.innerHTML = '';
+        products.forEach(product => {
+            productList.innerHTML += `
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    ${product.name} - ${product.price} جنيه
+                    <div>
+                        <button class="btn btn-sm btn-warning btn-neon me-2" onclick="editProduct('${product._id}', '${product.name}', ${product.price}, '${product.image}', '${product.category}')">تعديل</button>
+                        <button class="btn btn-sm btn-danger btn-neon" onclick="deleteProduct('${product._id}')">حذف</button>
+                    </div>
+                </li>`;
+        });
+    }
+
+    // إضافة/تعديل قسم
+    document.getElementById('categoryForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('categoryName').value;
+        const image = document.getElementById('categoryImage').value;
+        const method = document.getElementById('categoryForm').dataset.id ? 'PUT' : 'POST';
+        const url = method === 'PUT' ? `/api/categories/${document.getElementById('categoryForm').dataset.id}` : '/api/categories';
+        const response = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, image })
+        });
+        if (response.ok) {
+            alert('تمت العملية بنجاح');
+            document.getElementById('categoryForm').reset();
+            delete document.getElementById('categoryForm').dataset.id;
+            loadCategories();
+        } else {
+            alert('حدث خطأ');
+        }
+    });
+
+    // إضافة/تعديل منتج
+    document.getElementById('productForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('productName').value;
+        const price = document.getElementById('productPrice').value;
+        const image = document.getElementById('productImage').value;
+        const category = document.getElementById('productCategory').value;
+        const method = document.getElementById('productForm').dataset.id ? 'PUT' : 'POST';
+        const url = method === 'PUT' ? `/api/products/${document.getElementById('productForm').dataset.id}` : '/api/products';
+        const response = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, price, image, category })
+        });
+        if (response.ok) {
+            alert('تمت العملية بنجاح');
+            document.getElementById('productForm').reset();
+            delete document.getElementById('productForm').dataset.id;
+            loadProducts();
+        } else {
+            alert('حدث خطأ');
+        }
+    });
+
+    // تعديل قسم
+    function editCategory(id, name, image) {
+        document.getElementById('categoryName').value = name;
+        document.getElementById('categoryImage').value = image;
+        document.getElementById('categoryForm').dataset.id = id;
+    }
+
+    // حذف قسم
+    async function deleteCategory(id) {
+        if (confirm('هل أنت متأكد من الحذف؟')) {
+            const response = await fetch(`/api/categories/${id}`, { method: 'DELETE' });
+            if (response.ok) {
+                alert('تم الحذف بنجاح');
+                loadCategories();
+            } else {
+                alert('حدث خطأ أو القسم يحتوي على منتجات');
+            }
+        }
+    }
+
+    // تعديل منتج
+    function editProduct(id, name, price, image, category) {
+        document.getElementById('productName').value = name;
+        document.getElementById('productPrice').value = price;
+        document.getElementById('productImage').value = image;
+        document.getElementById('productCategory').value = category;
+        document.getElementById('productForm').dataset.id = id;
+    }
+
+    // حذف منتج
+    async function deleteProduct(id) {
+        if (confirm('هل أنت متأكد من الحذف؟')) {
+            const response = await fetch(`/api/products/${id}`, { method: 'DELETE' });
+            if (response.ok) {
+                alert('تم الحذف بنجاح');
+                loadProducts();
+            } else {
+                alert('حدث خطأ');
+            }
+        }
+    }
+
+    // تهيئة الصفحة
+    loadCategories();
+    loadProducts();
+</script>

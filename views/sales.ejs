@@ -1,0 +1,72 @@
+<%- include('layout') %>
+<div class="container mt-4">
+    <h2 class="text-center my-4">إحصائيات المبيعات</h2>
+    <div class="row mb-4 justify-content-center">
+        <div class="col-md-6">
+            <form id="date-filter-form" action="/admin/sales" method="GET">
+                <div class="row">
+                    <div class="col-md-5">
+                        <label for="startDate" class="form-label">من تاريخ</label>
+                        <input type="date" class="form-control" id="startDate" name="startDate" value="<%= startDate || '' %>">
+                    </div>
+                    <div class="col-md-5">
+                        <label for="endDate" class="form-label">إلى تاريخ</label>
+                        <input type="date" class="form-control" id="endDate" name="endDate" value="<%= endDate || '' %>">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">فلتر</button>
+                    </div>
+                </div>
+            </form>
+            <div class="text-center mt-2">
+                <button onclick="clearDateFilter()" class="btn btn-secondary">إلغاء الفلتر</button>
+            </div>
+        </div>
+    </div>
+    <p class="text-center">إجمالي المبيعات: <strong><%= totalSales || 0 %> جنيه</strong></p>
+    <p class="text-center">عدد الطلبات: <strong><%= totalOrders || 0 %></strong></p>
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>رقم الطلب</th>
+                    <th>اسم العميل</th>
+                    <th>المنتجات</th>
+                    <th>الإجمالي</th>
+                    <th>التاريخ</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (orders && orders.length > 0) { %>
+                    <% orders.forEach(order => { %>
+                        <tr>
+                            <td><%= order._id %></td>
+                            <td><%= order.customerName || 'غير متوفر' %></td>
+                            <td>
+                                <ul>
+                                    <% order.products.forEach(item => { %>
+                                        <li><%= item.product?.name || 'منتج غير متوفر' %> - <%= item.quantity %> × <%= item.price %> = <%= item.quantity * item.price %> جنيه</li>
+                                    <% }) %>
+                                </ul>
+                            </td>
+                            <td><%= order.total || 0 %> جنيه</td>
+                            <td><%= order.createdAt ? new Date(order.createdAt).toLocaleDateString('ar-EG') : 'غير متوفر' %></td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="5">لا توجد طلبات</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    function clearDateFilter() {
+        console.log('Clearing date filter');
+        document.getElementById('startDate').value = '';
+        document.getElementById('endDate').value = '';
+        window.location.href = '/admin/sales';
+    }
+</script>
