@@ -29,12 +29,15 @@ function clearOldCache() {
 // زر التثبيت لـ PWA
 let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (e) => {
+    console.log('beforeinstallprompt fired'); // تأكيد إن الحدث اشتغل
     e.preventDefault();
     deferredPrompt = e;
     const installButton = document.getElementById('installButton');
     if (installButton) {
+        console.log('زر التثبيت موجود، سيتم إظهاره');
         installButton.style.display = 'block';
         installButton.addEventListener('click', () => {
+            console.log('الضغط على زر التثبيت');
             deferredPrompt.prompt();
             deferredPrompt.userChoice.then((choiceResult) => {
                 if (choiceResult.outcome === 'accepted') {
@@ -46,6 +49,8 @@ window.addEventListener('beforeinstallprompt', (e) => {
                 installButton.style.display = 'none';
             });
         });
+    } else {
+        console.error('زر التثبيت (#installButton) غير موجود في DOM');
     }
 });
 
@@ -100,8 +105,8 @@ async function displayCategories() {
                     <img src="${category.image}" alt="${category.name}" class="img-fluid" onclick="displayProductsByCategory('${category._id}'); document.getElementById('product-list').scrollIntoView({ behavior: 'smooth' });">
                     <h3 onclick="displayProductsByCategory('${category._id}'); document.getElementById('product-list').scrollIntoView({ behavior: 'smooth' });">${category.name}</h3>
                 </div>
-                </div>
-            `).join('');
+            </div>
+        `).join('');
     } catch (error) {
         console.error('خطأ جلب الأقسام:', error.message);
         Toastify({
