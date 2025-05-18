@@ -73,12 +73,7 @@
                         <li class="nav-item"><a class="nav-link" href="#about" onclick="closeNavbar()">من نحن</a></li>
                         <li class="nav-item"><a class="nav-link" href="#reviews" onclick="closeNavbar()">آراء العملاء</a></li>
                         <li class="nav-item"><a class="nav-link" href="#cart" onclick="closeNavbar()">السلة</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/admin">لوحة الإدارة</a></li>
                     </ul>
-                    <div class="cart-icon ms-3">
-                        <i class="fas fa-shopping-cart fs-4"></i>
-                        <span id="cart-count" class="badge bg-danger rounded-circle">0</span>
-                    </div>
                 </div>
             </div>
         </nav>
@@ -93,7 +88,7 @@
     <section class="hero">
         <div class="hero-content">
             <div class="hero-box">
-                <h2>طازه من إنتاج مزارعنا</h2>
+                <h2>طازة من إنتاج مزارعنا</h2>
                 <a href="#categories" class="btn btn-primary hero-btn">اطلب الآن</a>
             </div>
         </div>
@@ -203,12 +198,12 @@
                 </div>
                 <div class="col-md-6 text-center text-md-end">
                     <h5>تواصلوا معنا</h5>
-                    <p>الهاتف: <a href="tel:+201234567890" class="footer-link">01234567890</a></p>
+                    <p>الهاتف: <a href="tel:+201234567890" class="footer-link付き: true
                     <p>البريد: <a href="mailto:info@abu-ali-market.com" class="footer-link">info@abu-ali-market.com</a></p>
                     <div class="social-icons mt-2">
-                        <a href="#" class="footer-link me-3"><i class="fab fa-facebook-f fs-5"></i></a>
-                        <a href="#" class="footer-link me-3"><i class="fab fa-instagram fs-5"></i></a>
-                        <a href="#" class="footer-link"><i class="fab fa-whatsapp fs-5"></i></a>
+                        <a href="https://facebook.com/aboalimarket" class="footer-link me-3"><i class="fab fa-facebook-f fs-5"></i></a>
+                        <a href="https://instagram.com/aboalimarket" class="footer-link me-3"><i class="fab fa-instagram fs-5"></i></a>
+                        <a href="https://wa.me/201234567890" class="footer-link"><i class="fab fa-whatsapp fs-5"></i></a>
                     </div>
                 </div>
             </div>
@@ -217,21 +212,23 @@
         </div>
     </footer>
 
-    <button class="floating-btn" onclick="showCheckout()">
+    <button id="floating-cart-btn" class="btn btn-primary floating-cart" aria-label="فتح سلة التسوق">
+        <i class="fas fa-shopping-cart"></i>
+        <span id="cart-count-floating" class="badge bg-light text-primary">0</span>
+    </button>
+    <button class="floating-btn" onclick="showCheckout()" aria-label="إرسال الأوردر عبر واتساب">
         <i class="fab fa-whatsapp me-2"></i> إرسال الأوردر
     </button>
-
-    <button id="show-categories-btn" class="floating-btn categories-btn">
+    <button id="show-categories-btn" class="floating-btn categories-btn" aria-label="عرض الأقسام">
         <i class="fas fa-list me-2"></i> عرض الأقسام
     </button>
-
-    <button id="installButton" class="btn btn-primary" style="display: none; position: fixed; bottom: 20px; left: 20px;">تثبيت التطبيق</button>
+    <button id="installButton" class="btn btn-primary" style="display: none; position: fixed; bottom: 20px; left: 20px;" aria-label="تثبيت التطبيق">تثبيت التطبيق</button>
 
     <div id="checkout" class="modal fade" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="btn-close me-auto" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close me-auto" data-bs-dismiss="modal" aria-label="إغلاق"></button>
                     <h5 class="modal-title">إتمام الطلب</h5>
                 </div>
                 <div class="modal-body">

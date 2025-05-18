@@ -14,7 +14,6 @@ function isCacheValid(timestamp, maxAge = 5 * 60 * 1000) {
     return Date.now() - timestamp < maxAge;
 }
 
-// إدارة الكاش القديم
 function clearOldCache() {
     const keys = ['categoriesCache', 'productsCache'];
     keys.forEach(key => {
@@ -26,10 +25,9 @@ function clearOldCache() {
     });
 }
 
-// زر التثبيت لـ PWA
 let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (e) => {
-    console.log('beforeinstallprompt fired'); // تأكيد إن الحدث اشتغل
+    console.log('beforeinstallprompt fired');
     e.preventDefault();
     deferredPrompt = e;
     const installButton = document.getElementById('installButton');
@@ -117,6 +115,35 @@ async function displayCategories() {
     }
 }
 
+async function searchCategories(query) {
+    try {
+        requestCount++;
+        console.log(`طلب fetch رقم: ${requestCount} إلى /api/categories?search=${query}`);
+        const response = await fetch(`/api/categories?search=${encodeURIComponent(query)}`);
+        if (!response.ok) {
+            throw new Error(`فشل جلب الأقسام (حالة: ${response.status})`);
+        }
+        const categories = await response.json();
+        const categoryGrid = document.querySelector('.category-grid');
+        categoryGrid.innerHTML = categories.length > 0 ? categories.map(category => `
+            <div class="col">
+                <div class="category-card" data-id="${category._id}">
+                    <img src="${category.image}" alt="${category.name}" class="img-fluid" onclick="displayProductsByCategory('${category._id}'); document.getElementById('product-list').scrollIntoView({ behavior: 'smooth' });">
+                    <h3 onclick="displayProductsByCategory('${category._id}'); document.getElementById('product-list').scrollIntoView({ behavior: 'smooth' });">${category.name}</h3>
+                </div>
+            </div>
+        `).join('') : `<p class="empty-message w-100 text-center">لا توجد أقسام مطابقة لـ "${query}"</p>`;
+        document.getElementById('categories').scrollIntoView({ behavior: 'smooth' });
+    } catch (error) {
+        console.error('خطأ جلب الأقسام:', error.message);
+        Toastify({
+            text: `خطأ جلب الأقسام: ${error.message}`,
+            duration: 3000,
+            className: 'toast-error'
+        }).showToast();
+    }
+}
+
 async function displayProducts(searchQuery = '') {
     console.log('جلب المنتجات', searchQuery ? `بحث: ${searchQuery}` : '');
     try {
@@ -181,9 +208,8 @@ async function displayProducts(searchQuery = '') {
                     <button class="btn btn-primary" onclick="addToCart('${product._id}')">إضافة إلى السلة</button>
                 </div>
             </div>
-        `).join('') : '<p class="empty-message w-100 text-center">لا توجد منتجات متاحة</p>';
+        `).join('') : `<p class="empty-message w-100 text-center">لا توجد منتجات مطابقة لـ "${searchQuery}"</p>`;
 
-        // التوجيه لقسم المنتجات بعد البحث
         if (searchQuery) {
             document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
         }
@@ -303,11 +329,13 @@ function updateCartDisplay() {
     const cartItems = document.getElementById('cart-items');
     const cartTotal = document.getElementById('cart-total');
     const cartCount = document.getElementById('cart-count');
+    const cartCountFloating = document.getElementById('cart-count-floating');
     if (cart.length === 0) {
         console.log('السلة فارغة');
         cartItems.innerHTML = '<p class="empty-message text-center">السلة فارغة</p>';
         cartTotal.textContent = '0';
-        cartCount.textContent = '0';
+        if (cartCount) cartCount.textContent = '0';
+        if (cartCountFloating) cartCountFloating.textContent = '0';
         return;
     }
     cartItems.innerHTML = cart.map(item => `
@@ -325,7 +353,9 @@ function updateCartDisplay() {
     `).join('');
     const total = cart.reduce((sum, item) => sum + item.quantity * item.price, 0);
     cartTotal.textContent = total.toFixed(2);
-    cartCount.textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+    const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+    if (cartCount) cartCount.textContent = count;
+    if (cartCountFloating) cartCountFloating.textContent = count;
 }
 
 function updateCartQuantity(productId, value) {
@@ -566,16 +596,22 @@ async function sendElectronicOrder(event) {
 
 function setupSearch() {
     const searchInput = document.getElementById('search-input');
+    if (!searchInput) {
+        console.error('حقل البحث (#search-input) غير موجود في DOM');
+        return;
+    }
     const debouncedSearch = debounce(query => {
         requestCount++;
         console.log(`طلب fetch رقم: ${requestCount} إلى /api/products?search=${query}`);
         displayProducts(query);
+        searchCategories(query);
     }, 500);
     searchInput.addEventListener('input', () => {
         const query = searchInput.value.trim();
         if (query.length >= 2) {
             debouncedSearch(query);
         } else {
+            displayCategories();
             displayProducts('');
         }
     });
@@ -589,12 +625,42 @@ function closeNavbar() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM تم تحميله');
     clearOldCache();
     displayCategories();
     displayProducts();
     updateCartDisplay();
     setupSearch();
-    document.getElementById('show-categories-btn').addEventListener('click', () => {
-        document.getElementById('categories').scrollIntoView({ behavior: 'smooth' });
-    });
+
+    const showCategoriesBtn = document.getElementById('show-categories-btn');
+    if (showCategoriesBtn) {
+        console.log('زر عرض الأقسام موجود، يتم ربط الحدث');
+        showCategoriesBtn.addEventListener('click', () => {
+            console.log('النقر على زر عرض الأقسام');
+            const categoriesSection = document.getElementById('categories');
+            if (categoriesSection) {
+                categoriesSection.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                console.error('قسم الأقسام (#categories) غير موجود في DOM');
+            }
+        });
+    } else {
+        console.error('زر عرض الأقسام (#show-categories-btn) غير موجود في DOM');
+    }
+
+    const cartBtn = document.getElementById('floating-cart-btn');
+    if (cartBtn) {
+        console.log('زر السلة موجود، يتم ربط الحدث');
+        cartBtn.addEventListener('click', (event) => {
+            console.log('النقر على زر السلة', event);
+            const cartSection = document.getElementById('cart');
+            if (cartSection) {
+                cartSection.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                console.error('قسم السلة (#cart) غير موجود في DOM');
+            }
+        });
+    } else {
+        console.error('زر السلة (#floating-cart-btn) غير موجود في DOM');
+    }
 });

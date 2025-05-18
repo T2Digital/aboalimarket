@@ -830,3 +830,88 @@ body {
 .admin-page .container {
     padding: 20px;
 }
+.floating-cart {
+    position: fixed;
+    top: 70px; /* تحت النافبار وشريط البحث */
+    left: 20px;
+    z-index: 1000; /* عشان يبقى فوق كل العناصر */
+    border-radius: 50%; /* زر دايرة */
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* ظل خفيف */
+    transition: transform 0.2s ease; /* Animation ناعمة */
+}
+
+.floating-cart:hover {
+    transform: scale(1.1); /* تكبير خفيف لما تمرر الماوس */
+}
+
+.floating-cart .badge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    font-size: 0.8rem;
+    padding: 5px 8px;
+}
+
+/* توافق مع شاشات الموبايل */
+@media (max-width: 576px) {
+    .floating-cart {
+        top: 60px;
+        left: 15px;
+        width: 50px;
+        height: 50px;
+    }
+}
+/* زر السلة العائم */
+.floating-cart {
+    background-color: #dc3545; /* لون الخلفية أحمر */
+    border-color: #dc3545; /* لون الحدود أحمر */
+    color: #fff; /* لون الأيقونة أبيض */
+    border-radius: 50%; /* شكل دائري */
+    width: 60px; /* حجم الزر */
+    height: 60px; /* حجم الزر */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 70px; /* أسفل النافبار (56px ارتفاع النافبار + 14px هامش) */
+    left: 20px; /* المسافة من اليسار */
+    z-index: 1000; /* لضمان ظهوره فوق العناصر الأخرى */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+/* لون الأيقونة داخل الزر */
+.floating-cart i {
+    color: #fff; /* لون أيقونة السلة أبيض */
+}
+
+/* مربع عدد الطلبات */
+.floating-cart .badge {
+    background-color: #fff; /* خلفية المربع أبيض */
+    color: #dc3545; /* لون النص أحمر */
+    position: absolute;
+    top: -10px;
+    right: -10px; /* أعلى اليمين بالنسبة للزر */
+    font-size: 0.75rem;
+    padding: 0.25em 0.5em;
+    border-radius: 50%;
+    border: 1px solid #dc3545; /* حدود حمراء */
+}
+
+/* تأثير عند التمرير (hover) */
+.floating-cart:hover {
+    background-color: #c82333; /* أحمر أغمق */
+    border-color: #c82333;
+    transform: scale(1.1); /* تكبير طفيف */
+}
+
+/* تأثير عند النقر (active) */
+.floating-cart:active {
+    background-color: #bd2130; /* أحمر أغمق */
+    border-color: #bd2130;
+}
